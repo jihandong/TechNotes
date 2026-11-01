@@ -44,4 +44,5 @@
 - Python 标准库脚本从 `metadata.toml` 生成 Hugo 页面，将 PDF 复制到站点资源目录。标签由 Hugo taxonomy 生成。
 - GitHub Actions 在推送 `main` 后验证、构建和部署。首次发布需在仓库 Pages 设置中选择 GitHub Actions。
 - 作者指定每个 commit 只做一件事，并要求 README 留待以后自己规划；AI 维护信息统一记录在本文件。
+- 为方便 AI 识别，维护文档使用醒目的英文文件名 `AI_READ_FIRST_MAINTENANCE_LOG.md`，不设置额外入口文件。
 
