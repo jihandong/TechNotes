@@ -46,3 +46,7 @@
 - 作者指定每个 commit 只做一件事，并要求 README 留待以后自己规划；AI 维护信息统一记录在本文件。
 - 为方便 AI 识别，维护文档使用醒目的英文文件名 `AI_READ_FIRST_MAINTENANCE_LOG.md`，不设置额外入口文件。
 
+### 2026-11-01 · 修正 PDF 路径
+
+- Hugo 的 `relURL` 需要无前导斜杠的资源路径，才能保留项目站点的 `/TechNotes/` 前缀。文章生成脚本输出 `pdfs/<slug>.pdf`。
+

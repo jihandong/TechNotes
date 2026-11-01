@@ -30,7 +30,7 @@ class BuildContentTest(unittest.TestCase):
             page = (root / "content" / "notes" / "gpu-memory.md").read_text(encoding="utf-8")
             self.assertIn('title = "GPU 内存管理"', page)
             self.assertIn('tags = ["GPU", "Memory"]', page)
-            self.assertIn('pdf = "/pdfs/gpu-memory.pdf"', page)
+            self.assertIn('pdf = "pdfs/gpu-memory.pdf"', page)
             self.assertIn("articles/gpu-memory/main.tex", page)
             self.assertEqual((root / "static" / "pdfs" / "gpu-memory.pdf").read_bytes(), b"%PDF-1.7\nexample")
 

@@ -81,7 +81,7 @@ def build(root: Path) -> int:
             f"description = {quoted(item['summary'])}\n"
             f"tags = [{tag_list}]\n"
             f"slug = {quoted(slug)}\n"
-            f"pdf = {quoted('/pdfs/' + slug + '.pdf')}\n"
+            f"pdf = {quoted('pdfs/' + slug + '.pdf')}\n"
             f"source = {quoted(SOURCE_BASE + '/' + slug + '/main.tex')}\n"
             "+++\n"
         )
