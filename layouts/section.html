@@ -1,0 +1,11 @@
+{{ define "main" }}
+  <header class="page-heading"><p class="eyebrow">ARCHIVE</p><h1>全部文章</h1><p>按发布日期排列的技术笔记。</p></header>
+  <section class="listing" aria-label="文章列表">
+    {{ with .RegularPages }}
+      {{ range .ByDate.Reverse }}{{ partial "note-row.html" . }}{{ end }}
+    {{ else }}
+      <p class="empty-state">这里还没有文章。</p>
+    {{ end }}
+  </section>
+{{ end }}
+

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <link rel="canonical" href="{{ .Permalink }}">
+  <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+  {{ with .OutputFormats.Get "RSS" }}<link rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }} RSS" href="{{ .Permalink }}">{{ end }}
+</head>
+<body>
+  <a class="skip-link" href="#content">跳到正文</a>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="wordmark" href="{{ .Site.Home.RelPermalink }}">HJNotes<span class="wordmark-dot">.</span></a>
+      <nav aria-label="主导航">
+        <a href="{{ "notes/" | relURL }}">文章</a>
+        <a href="{{ "tags/" | relURL }}">标签</a>
+        <a href="https://github.com/jihandong/TechNotes">GitHub</a>
+      </nav>
+    </header>
+    <main id="content">{{ block "main" . }}{{ end }}</main>
+    <footer class="site-footer">
+      <span>© {{ now.Year }} HJNotes</span>
+      <span>用 LaTeX 写作，公开分享。</span>
+    </footer>
+  </div>
+</body>
+</html>
+

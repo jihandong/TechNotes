@@ -1,0 +1,7 @@
+{{ define "main" }}
+  <header class="page-heading"><p class="eyebrow">TAG</p><h1>{{ .Title }}</h1><p>{{ len .Pages }} 篇文章</p></header>
+  <section class="listing" aria-label="标签下的文章">
+    {{ range .Pages.ByDate.Reverse }}{{ partial "note-row.html" . }}{{ end }}
+  </section>
+{{ end }}
+

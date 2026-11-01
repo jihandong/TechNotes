@@ -1,0 +1,7 @@
+{{ define "main" }}
+  <header class="page-heading"><p class="eyebrow">INDEX</p><h1>标签</h1><p>按主题探索笔记。</p></header>
+  <div class="tag-cloud">
+    {{ range .Pages.ByTitle }}<a class="tag tag-large" href="{{ .RelPermalink }}">{{ .LinkTitle }} <span>{{ len .Pages }}</span></a>{{ end }}
+  </div>
+{{ end }}
+

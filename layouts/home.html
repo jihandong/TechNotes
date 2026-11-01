@@ -1,0 +1,17 @@
+{{ define "main" }}
+  <section class="hero">
+    <p class="eyebrow">TECHNICAL NOTES / AI INFRA</p>
+    <h1>学习，记录，<br>持续构建。</h1>
+    <p class="hero-copy">关于 AI Infra、系统与工程实践的技术笔记。文章以 PDF 排版，网页提供索引与标签。</p>
+  </section>
+  <section class="listing" aria-labelledby="recent-title">
+    <div class="section-heading"><h2 id="recent-title">最近文章</h2><a href="{{ "notes/" | relURL }}">全部文章 ↗</a></div>
+    {{ $notes := where .Site.RegularPages "Section" "notes" }}
+    {{ with $notes }}
+      {{ range .ByDate.Reverse }}{{ partial "note-row.html" . }}{{ end }}
+    {{ else }}
+      <p class="empty-state">第一篇笔记正在路上。</p>
+    {{ end }}
+  </section>
+{{ end }}
+

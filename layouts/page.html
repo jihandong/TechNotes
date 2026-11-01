@@ -1,0 +1,23 @@
+{{ define "main" }}
+  <article>
+    <header class="article-header">
+      <a class="back-link" href="{{ "notes/" | relURL }}">← 返回文章列表</a>
+      <p class="eyebrow"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time> · PDF NOTE</p>
+      <h1>{{ .Title }}</h1>
+      {{ with .Description }}<p class="article-description">{{ . }}</p>{{ end }}
+      <div class="tag-list" aria-label="文章标签">
+        {{ range .GetTerms "tags" }}<a class="tag" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>{{ end }}
+      </div>
+    </header>
+    <div class="article-actions">
+      <a class="primary-action" href="{{ .Params.pdf | relURL }}" target="_blank" rel="noopener">打开 PDF ↗</a>
+      <a href="{{ .Params.pdf | relURL }}" download>下载 PDF ↓</a>
+      <a href="{{ .Params.source }}" target="_blank" rel="noopener">TeX 源码 ↗</a>
+    </div>
+    <div class="pdf-frame">
+      <iframe src="{{ .Params.pdf | relURL }}" title="{{ .Title }} PDF 正文" loading="lazy"></iframe>
+    </div>
+    <p class="pdf-fallback">如果浏览器未显示 PDF，请使用上方的“打开 PDF”链接。</p>
+  </article>
+{{ end }}
+
