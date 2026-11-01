@@ -11,6 +11,25 @@ TEST_TMP.mkdir(exist_ok=True)
 
 
 class BuildContentTest(unittest.TestCase):
+    def test_tex_and_pdf_alone_publish_with_tags(self) -> None:
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as temporary:
+            root = Path(temporary)
+            article = root / "articles" / "gpu-memory"
+            article.mkdir(parents=True)
+            (article / "main.tex").write_text(
+                "% HJNotes-Tags: GPU, Memory\n"
+                "% HJNotes-Summary: 显存分配笔记\n"
+                "\\title{GPU 内存管理}\n",
+                encoding="utf-8",
+            )
+            (article / "main.pdf").write_bytes(b"%PDF-1.7\nexample")
+
+            self.assertEqual(build(root), 1)
+            page = (root / "content" / "notes" / "gpu-memory.md").read_text(encoding="utf-8")
+            self.assertIn('title = "GPU 内存管理"', page)
+            self.assertIn('tags = ["GPU", "Memory"]', page)
+            self.assertIn('description = "显存分配笔记"', page)
+
     def test_article_generates_page_and_pdf(self) -> None:
         with tempfile.TemporaryDirectory(dir=TEST_TMP) as temporary:
             root = Path(temporary)

@@ -6,6 +6,7 @@ import argparse
 import json
 import re
 import shutil
+import subprocess
 import sys
 import tomllib
 from datetime import date, datetime
@@ -40,6 +41,35 @@ def metadata(path: Path) -> dict:
     return {"title": title.strip(), "date": published.isoformat(), "tags": [tag.strip() for tag in tags], "summary": summary.strip()}
 
 
+def first_commit_date(root: Path, tex: Path) -> str:
+    relative = tex.relative_to(root).as_posix()
+    try:
+        result = subprocess.run(
+            ["git", "log", "--follow", "--reverse", "--format=%as", "--", relative],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return date.today().isoformat()
+    lines = result.stdout.strip().splitlines()
+    return lines[0] if result.returncode == 0 and lines else date.today().isoformat()
+
+
+def from_tex(root: Path, tex: Path) -> dict:
+    source = tex.read_text(encoding="utf-8")
+    fields = {}
+    for key, value in re.findall(r"^\s*%\s*HJNotes-(Title|Tags|Summary):\s*(.*?)\s*$", source, re.MULTILINE):
+        fields[key] = value.strip()
+    title_match = re.search(r"\\title\s*\{([^{}\n]+)\}", source)
+    title = fields.get("Title") or (title_match.group(1).strip() if title_match else tex.parent.name.replace("-", " "))
+    tags = [tag.strip() for tag in re.split(r"[,，]", fields.get("Tags", "AI Infra")) if tag.strip()]
+    if not tags:
+        tags = ["AI Infra"]
+    return {"title": title, "date": first_commit_date(root, tex), "tags": tags, "summary": fields.get("Summary", "")}
+
+
 def build(root: Path) -> int:
     articles = root / "articles"
     notes = root / "content" / "notes"
@@ -62,17 +92,20 @@ def build(root: Path) -> int:
         tex = folder / "main.tex"
         pdf = folder / "main.pdf"
         meta = folder / "metadata.toml"
-        for required in (tex, pdf, meta):
+        for required in (tex, pdf):
             if not required.is_file():
                 raise ValueError(f"{slug}: 缺少 {required.name}")
         with pdf.open("rb") as handle:
             header = handle.read(5)
         if header != b"%PDF-":
             raise ValueError(f"{slug}: main.pdf 不是有效的 PDF 文件头")
-        try:
-            item = metadata(meta)
-        except (ValueError, tomllib.TOMLDecodeError) as error:
-            raise ValueError(f"{slug}: metadata.toml: {error}") from error
+        if meta.is_file():
+            try:
+                item = metadata(meta)
+            except (ValueError, tomllib.TOMLDecodeError) as error:
+                raise ValueError(f"{slug}: metadata.toml: {error}") from error
+        else:
+            item = from_tex(root, tex)
         tag_list = ", ".join(quoted(tag) for tag in item["tags"])
         page = (
             "+++\n"

@@ -5,12 +5,12 @@
 ## 项目目标
 
 - 作者专注写 `articles/<slug>/main.tex`，在本地生成并提交 `main.pdf`。
-- 作者或协作 AI 填写同目录的 `metadata.toml`；站点页面、标签索引、部署均由程序完成。
+- 站点页面、标签索引、部署均由程序完成；`metadata.toml` 仅在需要覆盖自动提取结果时使用。
 - 保持简洁、快速、可阅读的静态站点，不增加不必要的服务、主题依赖或 JavaScript。
 
 ## 不变量
 
-- `articles/<slug>/` 是文章的唯一来源；每篇必须有 `main.tex`、`main.pdf`、`metadata.toml`。
+- `articles/<slug>/` 是文章的唯一来源；每篇必须有 `main.tex`、`main.pdf`，`metadata.toml` 可选。
 - `content/notes/`、`static/pdfs/`、`public/` 是生成目录，不要手动维护，也不要提交。
 - 不在 CI 编译 TeX。PDF 由作者的 VS Code 工作流生成；构建脚本只检查 PDF 文件头并复制文件。
 - URL 以项目站点路径 `/TechNotes/` 为基准。所有站内资源和导航应使用 Hugo 的 `relURL` 或 `.RelPermalink`。
@@ -33,7 +33,7 @@
 
 ## 投稿格式
 
-复制 `articles/_template/` 为 `articles/<slug>/`。文件夹名使用小写英文、数字和连字符。提交 `main.tex`、本地渲染的 `main.pdf`、`metadata.toml` 三个文件。元信息中的 `title`、`date`、`tags` 必填，`summary` 可选；日期是 TOML 的 `YYYY-MM-DD` 日期，标签至少一个。推送 `main` 后网站自动更新。构建脚本 `scripts/build_content.py` 不会编译 TeX。
+复制 `articles/_template/` 为 `articles/<slug>/`。文件夹名使用小写英文、数字和连字符。提交 `main.tex` 和本地渲染的 `main.pdf`。脚本从 `\title{...}` 提取标题，从 `% HJNotes-Tags: GPU, Memory` 提取标签，从 `% HJNotes-Summary: ...` 提取简介；没有标签注释时归入 `AI Infra`。发布日期取 TeX 文件首次提交日期。复杂标题或需要精确日期时，可以增加 `metadata.toml` 覆盖自动结果。推送 `main` 后网站自动更新。构建脚本 `scripts/build_content.py` 不会编译 TeX。
 
 ## 维护日志
 
@@ -49,4 +49,8 @@
 ### 2026-11-01 · 修正 PDF 路径
 
 - Hugo 的 `relURL` 需要无前导斜杠的资源路径，才能保留项目站点的 `/TechNotes/` 前缀。文章生成脚本输出 `pdfs/<slug>.pdf`。
+
+### 2026-11-01 · 简化投稿
+
+- 每篇现在只需提交 `main.tex` 与 `main.pdf`。标题和可选标签、简介从 TeX 中提取；发布日期取首次提交日期。`metadata.toml` 改为可选覆盖文件。
 
