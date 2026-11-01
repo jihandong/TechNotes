@@ -1,0 +1,14 @@
+baseURL = 'https://jihandong.github.io/TechNotes/'
+languageCode = 'zh-cn'
+title = 'HJNotes'
+enableRobotsTXT = true
+
+[params]
+  description = 'AI Infra 学习与技术笔记'
+
+[taxonomies]
+  tag = 'tags'
+
+[permalinks]
+  notes = '/notes/:slug/'
+
