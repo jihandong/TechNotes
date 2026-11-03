@@ -55,7 +55,7 @@ Here $\mathrm{KeepTopK}(v, k)$ keeps the top-$k$ entries of $v$ and sets the res
 The weights $g_i = G(x)_i$ are dynamic activations computed per token, while only $W_g$ and $W_{noise}$ are static parameters.
 Softmax is one gating choice; DeepSeek instead uses sigmoid scores with re-normalization.
 
-\section{GShard}
+\section{GShard \& Expert Parallelism}
 Obviously, since tokens are dispatched to experts, the expert demension has \underline{naturally parallelism}. GShard scales MoE with expert parallelism plus all-to-all dispatch/combine, where all-to-all is a whole-cluster operation (the entire cluster is one group) rather than a per-node exchange. The round trip per MoE layer is:
 \begin{enumerate}
     \item \textbf{Sharding}: the input $[B, L, E]$ is sharded along the token dimension; the layout starts uniform/balanced.
