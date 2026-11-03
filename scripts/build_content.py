@@ -60,7 +60,7 @@ def first_commit_date(root: Path, tex: Path) -> str:
 def from_tex(root: Path, tex: Path) -> dict:
     source = tex.read_text(encoding="utf-8")
     fields = {}
-    for key, value in re.findall(r"^\s*%\s*HJNotes-(Title|Tags|Summary):\s*(.*?)\s*$", source, re.MULTILINE):
+    for key, value in re.findall(r"^[ \t]*%[ \t]*HJNotes-(Title|Tags|Summary):[ \t]*([^\r\n]*)", source, re.MULTILINE):
         fields[key] = value.strip()
     title_match = re.search(r"\\title\s*\{([^{}\n]+)\}", source)
     title = fields.get("Title") or (title_match.group(1).strip() if title_match else tex.parent.name.replace("-", " "))

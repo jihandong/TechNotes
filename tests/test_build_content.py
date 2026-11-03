@@ -65,6 +65,24 @@ class BuildContentTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "main.pdf"):
                 build(root)
 
+    def test_empty_summary_does_not_consume_title(self) -> None:
+        with tempfile.TemporaryDirectory(dir=TEST_TMP) as temporary:
+            root = Path(temporary)
+            article = root / "articles" / "collective-communication"
+            article.mkdir(parents=True)
+            (article / "main.tex").write_text(
+                "% HJNotes-Tags: AI Infra, MPI\n"
+                "% HJNotes-Summary:\n"
+                "\\title{Collective Communication}\n",
+                encoding="utf-8",
+            )
+            (article / "main.pdf").write_bytes(b"%PDF-1.7\nexample")
+
+            self.assertEqual(build(root), 1)
+            page = (root / "content" / "notes" / "collective-communication.md").read_text(encoding="utf-8")
+            self.assertIn('title = "Collective Communication"', page)
+            self.assertIn('description = ""', page)
+
 
 if __name__ == "__main__":
     unittest.main()
