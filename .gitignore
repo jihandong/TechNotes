@@ -22,3 +22,4 @@ __pycache__/
 *.xdv
 
 
+.ignore.LEARNING_GOAL.md
