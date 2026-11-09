@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[margin=0.65in]{geometry}
+\usepackage{amsmath}
 \usepackage{enumitem}
 \usepackage{graphicx}
 \usepackage{hyperref}
@@ -17,42 +18,82 @@
 \makeatletter
 \renewcommand{\maketitle}{%
     \begin{center}
-        {\Large\bfseries \@title\par}\vspace{0.3em}
-        {\normalsize \@author\par}\vspace{0.2em}
+        {\Large\bfseries \@title\par}\vspace{0.1em}
+        {\normalsize \@author\par}\vspace{0.1em}
         {\small \@date\par}
     \end{center}\vspace{0.4em}
 }
 \makeatother
-% HJNotes-Tags: AI Infra, Basics, MPI
-% HJNotes-Summary:
+% HJNotes-Tags: AI Infra, MPI, AlltoAll, AllReduce, Parallel
+% HJNotes-Summary: Collective communication primitives (Broadcast, Scatter, Gather, AllGather, AlltoAll, Reduce), AllReduce as ReduceScatter + AllGather, Ring AllReduce bandwidth-optimality, and DDP/FSDP/TP usage in AI training.
 \title{Collective Communication in AI Infra}
 \author{HJ}
 \begin{document}
 \maketitle
-\section{Collective Communication}
-Collective communication is defined as communication that involves a group of processes, these concept used widely in AI Infra:
+\section{Introduction}
+Collective communication is defined as communication that involves a group of processes. These basic concepts are widely used in AI Infra:
 \begin{itemize}
-    \item Broadcast(1:N): 1 member send copies to all group members
-    \item Scatter(1:N): 1 member scatter data to all.
-    \item Gather(1:N): 1 member gather data from all.
-    \item AllGather(N:N): Each member gather data from all, everyone should have the complete and same dataset.
-    \item All2All(N:N): Change the datalayout by dispatch+combine, here the example did Matrix Transpose.
+    \item Broadcast (1:N): one member sends copies to all group members.
+    \item Scatter (1:N): one member scatters data to all.
+    \item Gather (1:N): one member gathers data from all.
+    \item AllGather (N:N): each member gathers data from all, so every member ends up with the complete, identical dataset.
+    \item AlltoAll (N:N): changes the data layout through dispatch + combine; the example here performs a matrix transpose.
 \end{itemize}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.93\linewidth,height=\textheight,keepaspectratio]{CollectiveCommunication.png}
+    \caption{Collective communication patterns.}
+\end{figure}
+
+\subsection{Reduce}
+\textbf{Reduce} is a special primitive: in terms of its result it is equivalent to Gather plus a $\Sigma$ combine. However, to cut communication cost, implementations perform partial reduction, which is valid as long as the operation is \textcolor{blue}{\textbf{associative}}. MapReduce sets an optional Combiner for exactly this reason \cite{mapreduce}.
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=\linewidth,height=0.52\textheight,keepaspectratio]{CollectiveCommunication.png}
-    \caption{Collective communication patterns for six processes, from the MPI-1.1 standard~\cite{mpi-collective}.}
+    \includegraphics[width=0.67\linewidth,height=\textheight,keepaspectratio]{reduce-impl.png}
+    \caption{Two Reduce implementations.}
 \end{figure}
 
-\section{About Reduce}
-\textcolor{red}{TODO: Should read slides about ReduceScatter, Allgather in LLM, and AllReduce in MPI}
+\section{AllReduce}
+AllReduce is a composite operation of:
+\begin{enumerate}
+    \item \textbf{ReduceScatter}: distributes a global reduction task to nodes (GPU or server) by data shards.
+    \item \textbf{AllGather}: copies the finished shards to all nodes.
+\end{enumerate}
 
-\begin{thebibliography}{1}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.83\linewidth,height=\textheight,keepaspectratio]{all-reduce.png}
+    \caption{AllReduce.}
+\end{figure}
+
+\subsection{Ring AllReduce}
+The Ring implementation is theoretically \textbf{bandwidth-optimal}: with $N$ nodes and a per-node data size of $S$, it runs in $2(N-1)$ steps, each sending and receiving $S/N$ data, so the per-node traffic(only send volume) is
+\[
+2(N-1)\cdot\frac{S}{N} = 2S\,\frac{N-1}{N} \xrightarrow{\,N\to\infty\,} 2S,
+\]
+which is asymptotically independent of the number of nodes.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.37\linewidth,height=\textheight,keepaspectratio]{ring-all-reduce.png}
+    \caption{Ring AllReduce.}
+\end{figure}
+
+\subsection{AllReduce in AI Infra}
+\textbf{DDP (Distributed Data Parallel)}: training frequently uses AllReduce. Each device holds the \underline{complete parameters} and a \underline{batch}, and computes the local gradient $g_i$; each device is responsible for aggregating the shard $g_j$, and finally they exchange the shards to obtain the final gradient $g$.
+
+\textbf{FSDP (Fully Sharded Data Parallel)}: similar to DDP, but the parameters are also sharded, so the AllGather step is not needed.
+
+\textbf{TP (Tensor Parallel)}: For inference, \textcolor{red}{TODO}
+
+\begin{thebibliography}{9}
     \bibitem{mpi-collective}
     MPI Forum, \emph{MPI: A Message-Passing Interface Standard}, Version 1.1,
     Section 4.1, \href{https://www.mcs.anl.gov/research/projects/mpi/mpi-standard/mpi-report-1.1/node64.htm}{``Introduction and Overview.''}
+
+    \bibitem{mapreduce}
+    Jeffrey Dean and Sanjay Ghemawat, \emph{MapReduce: Simplified Data Processing on Large Clusters}, OSDI 2004.
 \end{thebibliography}
 
 \end{document}
-
