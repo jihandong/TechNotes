@@ -43,7 +43,7 @@ For LLM output there are lots of decoding methods, each deciding how to pick the
 
 \section{Deterministic Search}
 \begin{itemize}
-    \item \textbf{Greedy Search}: always pick the token with the highest probability ($\arg\max$), i.e.\ deterministic decoding. \emph{Drawback:} tend to \textcolor{red}{repeat} because losing too much info.
+    \item \textbf{Greedy Search}: always pick the token with the highest probability (\textcolor{blue}{$\arg\max$ only, softmax is not needed since the order unchange}), i.e.\ deterministic decoding. \emph{Drawback:} tend to \textcolor{red}{repeat} because losing too much info.
     \item \textbf{Beam Search}: keep the top-$N$ most probable partial sequences, like $N$ beams advancing in parallel through a $V$-branch tree ($V$ = vocabulary size). \emph{Drawback:} still easily repetive, root case not solved.
 \end{itemize}
 
